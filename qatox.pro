@@ -27,3 +27,13 @@ QML_DESIGNER_IMPORT_PATH =
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+unix: LIBS += -L$$PWD/prebuild_libs/Android/armeabi-v7a/ -ltoxcore
+INCLUDEPATH += $$PWD/prebuild_libs/include
+DEPENDPATH += $$PWD/prebuild_libs/include
+
+contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
+    ANDROID_EXTRA_LIBS = \
+        $$PWD/prebuild_libs/Android/armeabi-v7a/libtoxcore.so\
+        $$PWD/prebuild_libs/Android/armeabi-v7a/libsodium.so
+}
