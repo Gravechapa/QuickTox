@@ -30,3 +30,8 @@ QString MainController::userid()
 {
     return QString::fromStdString(getToxModel().getUserId());
 }
+
+void MainController::sendMsg(QString msg)
+{
+    getToxModel().send_message(msg.toStdString());
+}

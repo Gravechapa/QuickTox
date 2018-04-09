@@ -16,6 +16,7 @@ Item {
         anchors.bottomMargin: 15
         anchors.horizontalCenter: parent.horizontalCenter
         placeholderText: qsTr("User name")
+        onTextChanged: controller.userName = text
     }
 
     Button {
@@ -25,6 +26,10 @@ Item {
         height: 50
         anchors.centerIn: parent
         onClicked: {
+            if (controller.userName.length == 0) {
+                return;
+            }
+
             controller.authenticate();
             authenticated();
             mainLoader.source = "MainContainer.qml"

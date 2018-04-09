@@ -14,6 +14,8 @@ public:
 
     QString userid();
 
+    Q_INVOKABLE void sendMsg(QString msg);
+
 signals:
     void messageReceived(QString id);
     void statusChanged(QString status);

@@ -10,25 +10,32 @@ Item {
 
     Text {
         id: selfStatus
-        x: 22
-        y: 171
         width: 200
         height: 25
         text: qsTr("NONE")
+        anchors.top: parent.top
+        anchors.topMargin: 100
+        anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: 12
     }
 
     TextField {
-        x: 22
-        y: 220
+        id: uId
         text: controller.userid
+        clip: false
+        anchors.top: selfStatus.bottom
+        anchors.topMargin: 15
+        anchors.horizontalCenter: parent.horizontalCenter
         selectByMouse: true
+        readOnly: true
     }
 
     TextField {
         id: textMsg
-        x: 22
-        y: 300
+        anchors.top: uId.bottom
+        anchors.topMargin: 15
+        anchors.horizontalCenter: parent.horizontalCenter
+        readOnly: true
     }
 
     MainController {
@@ -43,5 +50,23 @@ Item {
         onStatusChanged: {
             selfStatus.text = status;
         }
+    }
+
+    TextField {
+        id: sendText
+        placeholderText: qsTr("Input respond to last msg")
+        anchors.top: textMsg.bottom
+        anchors.topMargin: 67
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
+
+    Button {
+        id: button
+        text: qsTr("Send")
+        anchors.top: sendText.bottom
+        anchors.topMargin: 25
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        onClicked: controller.sendMsg(sendText.text)
     }
 }
