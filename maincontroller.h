@@ -16,6 +16,7 @@ public:
 
 signals:
     void messageReceived(QString id);
+    void statusChanged(QString status);
     void useridChanged();
 
 public slots:

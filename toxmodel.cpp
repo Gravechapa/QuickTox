@@ -60,6 +60,24 @@ void ToxModel::ToxCallbackHelper::friend_request_cb_helper(Tox *tox_c, const uin
     tox_friend_add_norequest(tox_c, public_key, NULL);
 }
 
+void ToxModel::ToxCallbackHelper::self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data)
+{
+    qDebug() << "Connection status";
+    switch (connection_status)
+        {
+            case TOX_CONNECTION_NONE:
+                _toxModel->_self_connection_status_callback("NONE");
+                break;
+            case TOX_CONNECTION_TCP:
+                _toxModel->_self_connection_status_callback("TCP");
+                break;
+            case TOX_CONNECTION_UDP:
+                _toxModel->_self_connection_status_callback("UDP");
+                break;
+        }
+
+}
+
 void ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
     const uint8_t* name = reinterpret_cast<const uint8_t*>(username.c_str());
@@ -93,6 +111,7 @@ void ToxModel::authenticate(const std::string &username) //TODO: exception handl
 
     tox_callback_friend_request(tox, ToxCallbackHelper::friend_request_cb_helper);
     tox_callback_friend_message(tox, ToxCallbackHelper::friend_message_cb_helper);
+    tox_callback_self_connection_status(tox, ToxCallbackHelper::self_connection_status_cb_helper);
 
     _tox_main_loop = std::thread(&ToxModel::_tox_loop, this);
 
@@ -102,6 +121,11 @@ void ToxModel::authenticate(const std::string &username) //TODO: exception handl
 void ToxModel::set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback)
 {
     _receive_message_callback = callback;
+}
+
+void ToxModel::set_self_connection_status_callback(std::function<void(std::string)> callback)
+{
+    _self_connection_status_callback = callback;
 }
 
 std::string &ToxModel::getUserId()

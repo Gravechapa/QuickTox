@@ -8,6 +8,16 @@ Item {
     anchors.fill: parent
     id: mainWindow
 
+    Text {
+        id: selfStatus
+        x: 22
+        y: 171
+        width: 200
+        height: 25
+        text: qsTr("NONE")
+        font.pixelSize: 12
+    }
+
     TextField {
         x: 22
         y: 220
@@ -29,6 +39,9 @@ Item {
         target: controller
         onMessageReceived: {
             textMsg.text = id;
+        }
+        onStatusChanged: {
+            selfStatus.text = status;
         }
     }
 }
