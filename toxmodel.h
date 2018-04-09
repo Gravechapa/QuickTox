@@ -52,15 +52,15 @@ private:
 
     std::thread _tox_main_loop;
 
-    std::mutex _tox_mutex;
+    //std::mutex _tox_mutex;
 
     void _tox_loop()
     {
         while(!_finalize)
         {
-            _tox_mutex.lock();
+            //_tox_mutex.lock();
             tox_iterate(tox, NULL);
-            _tox_mutex.unlock();
+            //_tox_mutex.unlock();
             //qDebug() << "Iteration succeded";
             std::this_thread::sleep_for(std::chrono::milliseconds(tox_iteration_interval(tox)));
         }

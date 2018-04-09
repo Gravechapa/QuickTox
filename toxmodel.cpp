@@ -20,7 +20,10 @@ ToxModel::ToxModel()
 ToxModel::~ToxModel()
 {
     _finalize = true;
-    _tox_main_loop.join();
+    if(_tox_main_loop.joinable())
+        {
+            _tox_main_loop.join();
+        }
     tox_kill(tox);
 }
 
