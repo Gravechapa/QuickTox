@@ -1,5 +1,6 @@
 #include "logincontroller.h"
 #include <QDebug>
+#include "toxmodel.h"
 
 LoginController::LoginController(QObject *parent) : QObject(parent)
 {
@@ -21,5 +22,5 @@ void LoginController::setUserName(const QString &userName)
 
 QString LoginController::authenticate() //TODO: return bool or better invoke signal
 {
-    return QString::fromUtf8(model.authenticate(m_userName.toUtf8().constData()).c_str());
+    return QString::fromUtf8(getToxModel().authenticate(m_userName.toUtf8().constData()).c_str());
 }

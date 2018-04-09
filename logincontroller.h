@@ -2,7 +2,6 @@
 #define LOGINCONTROLLER_H
 
 #include <QObject>
-#include "toxmodel.h"
 
 class LoginController : public QObject
 {
@@ -22,8 +21,6 @@ signals:
 
 private:
     QString m_userName;
-
-    ToxModel model;
 
 public slots:
 

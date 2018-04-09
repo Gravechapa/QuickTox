@@ -3,6 +3,7 @@
 #include <tox/tox.h>
 
 #include "logincontroller.h"
+#include "maincontroller.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +12,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<LoginController>("qatox.LoginController", 1, 0, "LoginController");
+    qmlRegisterType<MainController>("qatox.MainController", 1, 0, "MainController");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/LoginWindow.qml")));

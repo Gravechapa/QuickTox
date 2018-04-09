@@ -15,7 +15,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     toxmodel.cpp \
-    logincontroller.cpp
+    logincontroller.cpp \
+    maincontroller.cpp
 
 RESOURCES += qml.qrc
 
@@ -41,4 +42,5 @@ android: ANDROID_EXTRA_LIBS = \
 
 HEADERS += \
     toxmodel.h \
-    logincontroller.h
+    logincontroller.h \
+    maincontroller.h

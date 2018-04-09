@@ -99,3 +99,10 @@ void ToxModel::ToxCallbackHelper::unregisterModel()
 {
     toxModel = nullptr;
 }
+
+ToxModel TOX_MODEL;
+
+ToxModel& getToxModel()
+{
+    return TOX_MODEL;
+}
