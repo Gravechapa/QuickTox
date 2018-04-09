@@ -2,7 +2,6 @@
 #include <QQmlApplicationEngine>
 #include <tox/tox.h>
 
-#include "backend.h"
 #include "logincontroller.h"
 
 int main(int argc, char *argv[])

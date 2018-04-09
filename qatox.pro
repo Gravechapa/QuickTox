@@ -30,9 +30,10 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-android: LIBS += -L$$PWD/prebuild_libs/Android/$${ANDROID_TARGET_ARCH}/ -ltoxcore -lsodium
-INCLUDEPATH += $$PWD/prebuild_libs/include
-DEPENDPATH += $$PWD/prebuild_libs/include
+android: LIBS += -L$$PWD/prebuild_libs/Android/$${ANDROID_TARGET_ARCH}/
+LIBS += -ltoxcore -lsodium
+android: INCLUDEPATH += $$PWD/prebuild_libs/include
+android: DEPENDPATH += $$PWD/prebuild_libs/include
 
 android: ANDROID_EXTRA_LIBS = \
         $$PWD/prebuild_libs/Android/$${ANDROID_TARGET_ARCH}/libtoxcore.so\
