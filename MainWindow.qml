@@ -12,6 +12,7 @@ Window {
 
     TextField {
         text: userid
+        selectByMouse: true
     }
 
     TextField {
