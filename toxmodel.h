@@ -34,22 +34,9 @@ private:
     {
     public:
         static void friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
-                                             size_t length, void *user_data)
-        {
-            qDebug() << "Mesage received";
-            toxModel->tox_mutex.lock();
-            const char *str = reinterpret_cast<const char*>(message);
-            toxModel->receive_message_callback(friend_number, type, str, user_data);
-            toxModel->tox_mutex.unlock();
-        }
+                                             size_t length, void *user_data);
 
-        static void friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
-        {
-            qDebug() << "Request received";
-            toxModel->tox_mutex.lock();
-            tox_friend_add_norequest(tox_c, public_key, NULL);
-            toxModel->tox_mutex.unlock();
-        }
+        static void friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data);
 
 
         static void registerModel(ToxModel *model);
@@ -71,7 +58,7 @@ private:
             tox_mutex.lock();
             tox_iterate(tox, NULL);
             tox_mutex.unlock();
-            qDebug() << "Iteration succeded";
+            //qDebug() << "Iteration succeded";
             std::this_thread::sleep_for(std::chrono::milliseconds(tox_iteration_interval(tox)));
         }
 

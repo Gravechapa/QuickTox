@@ -43,6 +43,23 @@ DHT_node nodes[] =
     {"node.tox.biribiri.org",      33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}}
 };
 
+void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
+                                     size_t length, void *user_data)
+{
+    qDebug() << "Mesage received";
+    toxModel->tox_mutex.lock();
+    const char *str = reinterpret_cast<const char*>(message);
+    toxModel->receive_message_callback(friend_number, type, str, user_data);
+    toxModel->tox_mutex.unlock();
+}
+
+void ToxModel::ToxCallbackHelper::friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
+{
+    qDebug() << "Request received";
+    toxModel->tox_mutex.lock();
+    tox_friend_add_norequest(tox_c, public_key, NULL);
+    toxModel->tox_mutex.unlock();
+}
 
 std::string ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
@@ -75,8 +92,8 @@ std::string ToxModel::authenticate(const std::string &username) //TODO: exceptio
         tox_id_hex[i] = toupper(tox_id_hex[i]);
     }
 
-    tox_callback_friend_request(tox, &ToxModel::ToxCallbackHelper::friend_request_cb_helper);
-    tox_callback_friend_message(tox, &ToxModel::ToxCallbackHelper::friend_message_cb_helper);
+    tox_callback_friend_request(tox, ToxCallbackHelper::friend_request_cb_helper);
+    tox_callback_friend_message(tox, ToxCallbackHelper::friend_message_cb_helper);
 
     tox_main_loop = std::thread(&ToxModel::tox_loop, this);
 
