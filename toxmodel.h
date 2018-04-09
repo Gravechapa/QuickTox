@@ -9,6 +9,8 @@
 #include <thread>
 #include <mutex>
 
+#include <QDebug>
+
 class ToxModel
 {
 public:
@@ -16,60 +18,56 @@ public:
 
     ~ToxModel();
 
-    std::string authenticate(const std::string &username);
+    void authenticate(const std::string &username);
 
     void set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback);
+    void set_self_connection_status_callback(std::function<void(std::string)> callback);
 
+    std::string& getUserId();
 
 private:
     Tox *tox;
 
-    std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> receive_message_callback;
+    std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> _receive_message_callback;
+    std::function<void(std::string)> _self_connection_status_callback;
 
-    std::atomic_bool finalize;
+    std::atomic_bool _finalize;
+
+    std::string _userid;
 
     class ToxCallbackHelper
     {
     public:
         static void friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
-                                             size_t length, void *user_data)
-        {
-            toxModel->tox_mutex.lock();
-            const char *str = reinterpret_cast<const char*>(message);
-            toxModel->receive_message_callback(friend_number, type, str, user_data);
-            toxModel->tox_mutex.unlock();
-        }
+                                             size_t length, void *user_data);
 
-        static void friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
-        {
-            toxModel->tox_mutex.lock();
-            tox_friend_add_norequest(tox_c, public_key, NULL);
-            toxModel->tox_mutex.unlock();
-        }
+        static void friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data);
 
+        static void self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data);
 
         static void registerModel(ToxModel *model);
 
         static void unregisterModel();
 
     private:
-        static ToxModel *toxModel;
+        static ToxModel *_toxModel;
     };
 
-    std::thread tox_main_loop;
+    std::thread _tox_main_loop;
 
-    std::mutex tox_mutex;
-
-    void tox_loop()
+    void _tox_loop()
     {
-        while(!finalize)
+        while(!_finalize)
         {
-            tox_mutex.lock();
             tox_iterate(tox, NULL);
+            //qDebug() << "Iteration succeded";
             std::this_thread::sleep_for(std::chrono::milliseconds(tox_iteration_interval(tox)));
-            tox_mutex.unlock();
         }
+
+        qDebug() << "Finalizing";
     }
 };
+
+ToxModel& getToxModel();
 
 #endif // TOXMODEL_H

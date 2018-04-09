@@ -1,8 +1,15 @@
 #include "logincontroller.h"
 #include <QDebug>
+#include "toxmodel.h"
 
 LoginController::LoginController(QObject *parent) : QObject(parent)
 {
+    qDebug() << "Constructor called";
+}
+
+LoginController::~LoginController()
+{
+    qDebug() << "Destructor called";
 }
 
 QString LoginController::userName()
@@ -19,7 +26,7 @@ void LoginController::setUserName(const QString &userName)
     emit userNameChanged();
 }
 
-QString LoginController::authenticate() //TODO: return bool or better invoke signal
+void LoginController::authenticate() //TODO: return bool or better invoke signal
 {
-    return QString::fromUtf8(model.authenticate(m_userName.toUtf8().constData()).c_str());
+    getToxModel().authenticate(m_userName.toUtf8().constData());
 }
