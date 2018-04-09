@@ -12,15 +12,18 @@ ToxModel::ToxModel()
     {
         throw std::runtime_error("Toxcore");
     }
-    finalize = false;
+    _finalize = false;
 
     ToxCallbackHelper::registerModel(this);
 }
 
 ToxModel::~ToxModel()
 {
-    finalize = true;
-    tox_main_loop.join();
+    _finalize = true;
+    if(_tox_main_loop.joinable())
+        {
+            _tox_main_loop.join();
+        }
     tox_kill(tox);
 }
 
@@ -43,8 +46,39 @@ DHT_node nodes[] =
     {"node.tox.biribiri.org",      33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}}
 };
 
+void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
+                                     size_t length, void *user_data)
+{
+    qDebug() << "Mesage received";
+    const char *str = reinterpret_cast<const char*>(message);
+    _toxModel->_receive_message_callback(friend_number, type, str, user_data);
+}
 
-std::string ToxModel::authenticate(const std::string &username) //TODO: exception handling
+void ToxModel::ToxCallbackHelper::friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
+{
+    qDebug() << "Request received";
+    tox_friend_add_norequest(tox_c, public_key, NULL);
+}
+
+void ToxModel::ToxCallbackHelper::self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data)
+{
+    qDebug() << "Connection status";
+    switch (connection_status)
+        {
+            case TOX_CONNECTION_NONE:
+                _toxModel->_self_connection_status_callback("NONE");
+                break;
+            case TOX_CONNECTION_TCP:
+                _toxModel->_self_connection_status_callback("TCP");
+                break;
+            case TOX_CONNECTION_UDP:
+                _toxModel->_self_connection_status_callback("UDP");
+                break;
+        }
+
+}
+
+void ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
     const uint8_t* name = reinterpret_cast<const uint8_t*>(username.c_str());
     if(!tox_self_set_name(tox, name, std::strlen(username.c_str()), NULL))
@@ -75,27 +109,45 @@ std::string ToxModel::authenticate(const std::string &username) //TODO: exceptio
         tox_id_hex[i] = toupper(tox_id_hex[i]);
     }
 
-    tox_callback_friend_request(tox, &ToxModel::ToxCallbackHelper::friend_request_cb_helper);
-    tox_callback_friend_message(tox, &ToxModel::ToxCallbackHelper::friend_message_cb_helper);
+    tox_callback_friend_request(tox, ToxCallbackHelper::friend_request_cb_helper);
+    tox_callback_friend_message(tox, ToxCallbackHelper::friend_message_cb_helper);
+    tox_callback_self_connection_status(tox, ToxCallbackHelper::self_connection_status_cb_helper);
 
-    tox_main_loop = std::thread(&ToxModel::tox_loop, this);
+    _tox_main_loop = std::thread(&ToxModel::_tox_loop, this);
 
-    return std::string(tox_id_hex);
+    _userid = std::string(tox_id_hex);
 }
 
 void ToxModel::set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback)
 {
-    receive_message_callback = callback;
+    _receive_message_callback = callback;
 }
 
-ToxModel *ToxModel::ToxCallbackHelper::toxModel = nullptr;
+void ToxModel::set_self_connection_status_callback(std::function<void(std::string)> callback)
+{
+    _self_connection_status_callback = callback;
+}
+
+std::string &ToxModel::getUserId()
+{
+    return _userid;
+}
+
+ToxModel *ToxModel::ToxCallbackHelper::_toxModel = nullptr;
 
 void ToxModel::ToxCallbackHelper::registerModel(ToxModel *model)
 {
-    toxModel = model;
+    _toxModel = model;
 }
 
 void ToxModel::ToxCallbackHelper::unregisterModel()
 {
-    toxModel = nullptr;
+    _toxModel = nullptr;
+}
+
+ToxModel TOX_MODEL;
+
+ToxModel& getToxModel()
+{
+    return TOX_MODEL;
 }
