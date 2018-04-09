@@ -10,10 +10,12 @@ class LoginController : public QObject
 public:
     explicit LoginController(QObject *parent = nullptr);
 
+    ~LoginController();
+
     QString userName();
     void setUserName(const QString &userName);
 
-    Q_INVOKABLE QString authenticate();
+    Q_INVOKABLE void authenticate();
 
 signals:
     void userNameChanged();

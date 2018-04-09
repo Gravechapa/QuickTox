@@ -12,15 +12,15 @@ ToxModel::ToxModel()
     {
         throw std::runtime_error("Toxcore");
     }
-    finalize = false;
+    _finalize = false;
 
     ToxCallbackHelper::registerModel(this);
 }
 
 ToxModel::~ToxModel()
 {
-    finalize = true;
-    tox_main_loop.join();
+    _finalize = true;
+    _tox_main_loop.join();
     tox_kill(tox);
 }
 
@@ -47,21 +47,17 @@ void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t 
                                      size_t length, void *user_data)
 {
     qDebug() << "Mesage received";
-    toxModel->tox_mutex.lock();
     const char *str = reinterpret_cast<const char*>(message);
-    toxModel->receive_message_callback(friend_number, type, str, user_data);
-    toxModel->tox_mutex.unlock();
+    _toxModel->_receive_message_callback(friend_number, type, str, user_data);
 }
 
 void ToxModel::ToxCallbackHelper::friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
 {
     qDebug() << "Request received";
-    toxModel->tox_mutex.lock();
     tox_friend_add_norequest(tox_c, public_key, NULL);
-    toxModel->tox_mutex.unlock();
 }
 
-std::string ToxModel::authenticate(const std::string &username) //TODO: exception handling
+void ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
     const uint8_t* name = reinterpret_cast<const uint8_t*>(username.c_str());
     if(!tox_self_set_name(tox, name, std::strlen(username.c_str()), NULL))
@@ -95,26 +91,31 @@ std::string ToxModel::authenticate(const std::string &username) //TODO: exceptio
     tox_callback_friend_request(tox, ToxCallbackHelper::friend_request_cb_helper);
     tox_callback_friend_message(tox, ToxCallbackHelper::friend_message_cb_helper);
 
-    tox_main_loop = std::thread(&ToxModel::tox_loop, this);
+    _tox_main_loop = std::thread(&ToxModel::_tox_loop, this);
 
-    return std::string(tox_id_hex);
+    _userid = std::string(tox_id_hex);
 }
 
 void ToxModel::set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback)
 {
-    receive_message_callback = callback;
+    _receive_message_callback = callback;
 }
 
-ToxModel *ToxModel::ToxCallbackHelper::toxModel = nullptr;
+std::string &ToxModel::getUserId()
+{
+    return _userid;
+}
+
+ToxModel *ToxModel::ToxCallbackHelper::_toxModel = nullptr;
 
 void ToxModel::ToxCallbackHelper::registerModel(ToxModel *model)
 {
-    toxModel = model;
+    _toxModel = model;
 }
 
 void ToxModel::ToxCallbackHelper::unregisterModel()
 {
-    toxModel = nullptr;
+    _toxModel = nullptr;
 }
 
 ToxModel TOX_MODEL;

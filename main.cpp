@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<MainController>("qatox.MainController", 1, 0, "MainController");
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/LoginWindow.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
 

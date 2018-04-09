@@ -18,17 +18,20 @@ public:
 
     ~ToxModel();
 
-    std::string authenticate(const std::string &username);
+    void authenticate(const std::string &username);
 
     void set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback);
 
+    std::string& getUserId();
 
 private:
     Tox *tox;
 
-    std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> receive_message_callback;
+    std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> _receive_message_callback;
 
-    std::atomic_bool finalize;
+    std::atomic_bool _finalize;
+
+    std::string _userid;
 
     class ToxCallbackHelper
     {
@@ -44,20 +47,20 @@ private:
         static void unregisterModel();
 
     private:
-        static ToxModel *toxModel;
+        static ToxModel *_toxModel;
     };
 
-    std::thread tox_main_loop;
+    std::thread _tox_main_loop;
 
-    std::mutex tox_mutex;
+    std::mutex _tox_mutex;
 
-    void tox_loop()
+    void _tox_loop()
     {
-        while(!finalize)
+        while(!_finalize)
         {
-            tox_mutex.lock();
+            _tox_mutex.lock();
             tox_iterate(tox, NULL);
-            tox_mutex.unlock();
+            _tox_mutex.unlock();
             //qDebug() << "Iteration succeded";
             std::this_thread::sleep_for(std::chrono::milliseconds(tox_iteration_interval(tox)));
         }

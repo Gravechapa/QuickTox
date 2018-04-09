@@ -3,18 +3,15 @@ import QtQuick.Controls 2.2
 import QtQuick.Window 2.0
 import qatox.MainController 1.0
 
-Window {
+Item {
     visible: true
-    width: 480
-    height: 640
+    anchors.fill: parent
     id: mainWindow
-    title: qsTr("Main")
-    property string userid
 
     TextField {
         x: 22
         y: 220
-        text: userid
+        text: controller.userid
         selectByMouse: true
     }
 
