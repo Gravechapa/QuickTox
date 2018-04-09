@@ -32,9 +32,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 android: LIBS += -L$$PWD/prebuild_libs/Android/$${ANDROID_TARGET_ARCH}/
+windows: LIBS += -L$$PWD/prebuild_libs/Windows
 LIBS += -ltoxcore -lsodium
 android: INCLUDEPATH += $$PWD/prebuild_libs/include
 android: DEPENDPATH += $$PWD/prebuild_libs/include
+windows: INCLUDEPATH += $$PWD/prebuild_libs/include
+windows: DEPENDPATH += $$PWD/prebuild_libs/include
 
 android: ANDROID_EXTRA_LIBS = \
         $$PWD/prebuild_libs/Android/$${ANDROID_TARGET_ARCH}/libtoxcore.so\
