@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.3
 import qatox.LoginController 1.0
 
 Item {
+    visible: true
     anchors.fill: parent
     id: loginContainer
     TextField {
@@ -26,6 +27,7 @@ Item {
         onClicked: {
             controller.authenticate();
             authenticated();
+            mainLoader.source = "MainContainer.qml"
         }
     }
 
