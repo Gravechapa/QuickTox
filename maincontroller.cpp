@@ -33,6 +33,6 @@ QString MainController::userid()
 
 void MainController::sendMsg(QString msg)
 {
-    auto str = std::refmsg.toStdString();
+    auto str = msg.toStdString();
     getToxModel().send_message(str);
 }
