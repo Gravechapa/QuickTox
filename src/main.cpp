@@ -2,8 +2,8 @@
 #include <QQmlApplicationEngine>
 #include <tox/tox.h>
 
-#include "logincontroller.h"
-#include "maincontroller.h"
+#include "controllers/logincontroller.h"
+#include "controllers/maincontroller.h"
 
 int main(int argc, char *argv[])
 {

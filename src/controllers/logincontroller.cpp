@@ -1,6 +1,4 @@
 #include "logincontroller.h"
-#include <QDebug>
-#include "toxmodel.h"
 
 LoginController::LoginController(QObject *parent) : QObject(parent)
 {

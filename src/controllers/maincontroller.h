@@ -2,6 +2,8 @@
 #define MAINCONTROLLER_H
 
 #include <QObject>
+#include "../core/toxmodel.h"
+#include <QDebug>
 
 class MainController : public QObject
 {
