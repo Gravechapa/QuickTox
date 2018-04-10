@@ -1,8 +1,4 @@
 #include "toxmodel.h"
-#include <exception>
-#include <stdexcept>
-#include <sodium.h>
-#include <cstring>
 
 ToxModel::ToxModel()
 {

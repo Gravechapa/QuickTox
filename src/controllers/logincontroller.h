@@ -2,6 +2,8 @@
 #define LOGINCONTROLLER_H
 
 #include <QObject>
+#include <QDebug>
+#include "../core/toxmodel.h"
 
 class LoginController : public QObject
 {

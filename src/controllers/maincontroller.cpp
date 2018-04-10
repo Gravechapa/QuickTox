@@ -1,6 +1,4 @@
 #include "maincontroller.h"
-#include "toxmodel.h"
-#include <QDebug>
 
 MainController::MainController(QObject *parent) : QObject(parent)
 {
