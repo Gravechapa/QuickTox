@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    qmlRegisterType<LoginController>("qatox.LoginController", 1, 0, "LoginController");
-    qmlRegisterType<MainController>("qatox.MainController", 1, 0, "MainController");
+    qmlRegisterType<LoginController>("QuickTox.LoginController", 1, 0, "LoginController");
+    qmlRegisterType<MainController>("QuickTox.MainController", 1, 0, "MainController");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

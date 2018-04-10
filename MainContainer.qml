@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.2
 import QtQuick.Window 2.0
-import qatox.MainController 1.0
+import QuickTox.MainController 1.0
 
 Item {
     visible: true
