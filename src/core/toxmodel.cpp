@@ -1,8 +1,4 @@
 #include "toxmodel.h"
-#include <exception>
-#include <stdexcept>
-#include <sodium.h>
-#include <cstring>
 
 ToxModel::ToxModel()
 {
@@ -38,18 +34,23 @@ DHT_node nodes[] =
 {
     {"178.62.250.138",             33445, "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B", {0}},
     {"2a03:b0c0:2:d0::16:1",       33445, "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B", {0}},
-    {"tox.zodiaclabs.org",         33445, "A09162D68618E742FFBCA1C2C70385E6679604B2D80EA6E84AD0996A1AC8A074", {0}},
     {"163.172.136.118",            33445, "2C289F9F37C20D09DA83565588BF496FAB3764853FA38141817A72E3F18ACA0B", {0}},
     {"2001:bc8:4400:2100::1c:50f", 33445, "2C289F9F37C20D09DA83565588BF496FAB3764853FA38141817A72E3F18ACA0B", {0}},
     {"128.199.199.197",            33445, "B05C8869DBB4EDDD308F43C1A974A20A725A36EACCA123862FDE9945BF9D3E09", {0}},
     {"2400:6180:0:d0::17a:a001",   33445, "B05C8869DBB4EDDD308F43C1A974A20A725A36EACCA123862FDE9945BF9D3E09", {0}},
-    {"node.tox.biribiri.org",      33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}}
+    {"node.tox.biribiri.org",      33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}},
+    {"tmux.ru",                    33445, "7467AFA626D3246343170B309BA5BDC975DF3924FC9D7A5917FBFA9F5CD5CD38", {0}},
+    {"t0x-node1.weba.ru",          33445, "5A59705F86B9FC0671FDF72ED9BB5E55015FF20B349985543DDD4B0656CA1C63", {0}},
+    {"d4rk4.ru",                   33445, "53737F6D47FA6BD2808F378E339AF45BF86F39B64E79D6D491C53A1D522E7039", {0}},
+    {"tox.uplinklabs.net ",        33445, "1A56EA3EDF5DF4C0AEABBF3C2E4E603890F87E983CAC8A0D532A335F2C6E3E1F", {0}},
+    {"tox.deadteam.org",           33445, "C7D284129E83877D63591F14B3F658D77FF9BA9BA7293AEB2BDFBFE1A803AF47", {0}}
 };
 
 void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
                                      size_t length, void *user_data)
 {
     qDebug() << "Mesage received";
+    _toxModel->_lastReceived = friend_number;
     const char *str = reinterpret_cast<const char*>(message);
     _toxModel->_receive_message_callback(friend_number, type, str, user_data);
 }
@@ -96,7 +97,13 @@ void ToxModel::authenticate(const std::string &username) //TODO: exception handl
     {
         sodium_hex2bin(nodes[i].key_bin, sizeof(nodes[i].key_bin),
                        nodes[i].key_hex, sizeof(nodes[i].key_hex)-1, NULL, NULL, NULL);
-        tox_bootstrap(tox, nodes[i].ip, nodes[i].port, nodes[i].key_bin, NULL); //TODO: handle false please
+        for (auto j = 0; j < 10 && !tox_bootstrap(tox, nodes[i].ip, nodes[i].port, nodes[i].key_bin, NULL); j++)
+        {
+            if (j == 9)
+            {
+                qDebug() << "Failed to connect to node: " << nodes[i].ip ;
+            }
+        }//TODO: handle false please
     }
 
     uint8_t tox_id_bin[TOX_ADDRESS_SIZE];
@@ -116,6 +123,7 @@ void ToxModel::authenticate(const std::string &username) //TODO: exception handl
     _tox_main_loop = std::thread(&ToxModel::_tox_loop, this);
 
     _userid = std::string(tox_id_hex);
+    qDebug() << _userid.c_str();
 }
 
 void ToxModel::set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback)
@@ -126,6 +134,11 @@ void ToxModel::set_receive_message_callback(std::function<void(uint32_t, TOX_MES
 void ToxModel::set_self_connection_status_callback(std::function<void(std::string)> callback)
 {
     _self_connection_status_callback = callback;
+}
+
+void ToxModel::send_message(std::string &msg)
+{
+    tox_friend_send_message(tox, _lastReceived, TOX_MESSAGE_TYPE_NORMAL, reinterpret_cast<const uint8_t*>(msg.c_str()), msg.size(), NULL);
 }
 
 std::string &ToxModel::getUserId()

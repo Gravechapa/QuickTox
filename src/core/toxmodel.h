@@ -8,7 +8,9 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
-
+#include <stdexcept>
+#include <sodium.h>
+#include <cstring>
 #include <QDebug>
 
 class ToxModel
@@ -23,6 +25,8 @@ public:
     void set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback);
     void set_self_connection_status_callback(std::function<void(std::string)> callback);
 
+    void send_message(std::string &msg);
+
     std::string& getUserId();
 
 private:
@@ -34,6 +38,8 @@ private:
     std::atomic_bool _finalize;
 
     std::string _userid;
+
+    uint32_t _lastReceived;//TODO: remove it and move to some class of friends;
 
     class ToxCallbackHelper
     {

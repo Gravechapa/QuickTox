@@ -2,6 +2,8 @@
 #define MAINCONTROLLER_H
 
 #include <QObject>
+#include "../core/toxmodel.h"
+#include <QDebug>
 
 class MainController : public QObject
 {
@@ -13,6 +15,8 @@ public:
     ~MainController();
 
     QString userid();
+
+    Q_INVOKABLE void sendMsg(QString msg);
 
 signals:
     void messageReceived(QString id);

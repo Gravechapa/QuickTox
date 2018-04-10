@@ -1,6 +1,4 @@
 #include "maincontroller.h"
-#include "toxmodel.h"
-#include <QDebug>
 
 MainController::MainController(QObject *parent) : QObject(parent)
 {
@@ -29,4 +27,10 @@ MainController::~MainController()
 QString MainController::userid()
 {
     return QString::fromStdString(getToxModel().getUserId());
+}
+
+void MainController::sendMsg(QString msg)
+{
+    auto str = msg.toStdString();
+    getToxModel().send_message(str);
 }

@@ -9,7 +9,7 @@ ApplicationWindow {
     minimumWidth: 480
     minimumHeight: 640
     id: mainWindow
-    title: qsTr("qatox")
+    title: qsTr("QuickTox")
     Loader { id: mainLoader
              source: "LoginContainer.qml"
              anchors.fill: parent
