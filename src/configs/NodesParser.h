@@ -28,40 +28,28 @@ static std::vector<DHT_node> get_dht_nodes()
     file.close();
     QJsonDocument json = QJsonDocument::fromJson(data.toUtf8());
     QJsonObject json_obj = json.object();
-    auto nodes_it = json_obj.find("nodes");
 
     std::vector<DHT_node> result;
 
-    if (nodes_it != json_obj.end() && nodes_it->isArray())
+    if (json_obj.contains("nodes") && json_obj["nodes"].isArray())
         {
-            auto nodes = nodes_it->toArray();
+            auto nodes = json_obj["nodes"].toArray();
             for (int i = 0; i < nodes.size(); ++i)
                 {
                     if(nodes[i].isObject())
                         {
                             auto node = nodes[i].toObject();
-                            if (!(node.contains("ipv4") && node["ipv4"].isString()))
+
+                            if (!(node.contains("ipv4") && node["ipv4"].isString()) ||
+                                !(node.contains("ipv6") && node["ipv6"].isString()) ||
+                                !(node.contains("port") && node["port"].isDouble()) ||
+                                !(node.contains("public_key") && node["public_key"].isString()))
                                 {
                                     continue;
                                 }
                             auto ip = node["ipv4"].toString();
-
-                            if (!(node.contains("ipv6") && node["ipv6"].isString()))
-                                {
-                                    continue;
-                                }
                             auto ipv6 = node["ipv6"].toString();
-
-                            if (!(node.contains("port") && node["port"].isDouble()))
-                                {
-                                    continue;
-                                }
                             auto port = static_cast<uint16_t>(node["port"].toInt());
-
-                            if (!(node.contains("public_key") && node["public_key"].isString()))
-                                {
-                                    continue;
-                                }
                             auto public_key = node["public_key"].toString().toStdString();
 
                             unsigned char key_bin[TOX_PUBLIC_KEY_SIZE + 1] = {0};
