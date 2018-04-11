@@ -8,6 +8,7 @@
 #include <vector>
 #include <tox/tox.h>
 #include <sodium.h>
+#include <stdexcept>
 
 typedef struct DHT_node
 {
@@ -34,6 +35,7 @@ static std::vector<DHT_node> get_dht_nodes()
     if (json_obj.contains("nodes") && json_obj["nodes"].isArray())
         {
             auto nodes = json_obj["nodes"].toArray();
+            result.resize(nodes.size());
             for (int i = 0; i < nodes.size(); ++i)
                 {
                     if(nodes[i].isObject())
@@ -45,7 +47,7 @@ static std::vector<DHT_node> get_dht_nodes()
                                 !(node.contains("port") && node["port"].isDouble()) ||
                                 !(node.contains("public_key") && node["public_key"].isString()))
                                 {
-                                    continue;
+                                    throw std::runtime_error("Corrupted dht node json!");
                                 }
                             auto ip = node["ipv4"].toString();
                             auto ipv6 = node["ipv6"].toString();
@@ -56,8 +58,8 @@ static std::vector<DHT_node> get_dht_nodes()
                             sodium_hex2bin(key_bin, sizeof(key_bin),
                                            public_key.c_str(), TOX_PUBLIC_KEY_SIZE * 2, NULL, NULL, NULL);
 
-                            result.emplace_back(DHT_node{ip.toStdString(), ipv6.toStdString(), port,
-                                                         public_key, std::string((char*)&key_bin)});
+                            result[i] = DHT_node{ip.toStdString(), ipv6.toStdString(), port,
+                                                         public_key, std::string((char*)&key_bin)};
                         }
                 }
         }
