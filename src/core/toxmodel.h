@@ -22,6 +22,7 @@ public:
     ~ToxModel();
 
     void authenticate(const std::string &username);
+    void bootstrap();
 
     void set_receive_message_callback(std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> callback);
     void set_self_connection_status_callback(std::function<void(std::string)> callback);
@@ -31,7 +32,9 @@ public:
     std::string& getUserId();
 
 private:
-    Tox *tox;
+    Tox *_tox;
+
+    uint8_t _self_connection_status = TOX_CONNECTION_NONE;
 
     std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> _receive_message_callback;
     std::function<void(std::string)> _self_connection_status_callback;
@@ -41,6 +44,8 @@ private:
     std::string _userid;
 
     uint32_t _lastReceived;//TODO: remove it and move to some class of friends;
+
+    std::vector<DHT_node> _nodes;
 
     class ToxCallbackHelper
     {
@@ -52,6 +57,9 @@ private:
 
         static void self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data);
 
+        static void log_cb_helper(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
+                                  const char *message, void *user_data);
+
         static void registerModel(ToxModel *model);
 
         static void unregisterModel();
@@ -62,17 +70,7 @@ private:
 
     std::thread _tox_main_loop;
 
-    void _tox_loop()
-    {
-        while(!_finalize)
-        {
-            tox_iterate(tox, NULL);
-            //qDebug() << "Iteration succeded";
-            std::this_thread::sleep_for(std::chrono::milliseconds(tox_iteration_interval(tox)));
-        }
-
-        qDebug() << "Finalizing";
-    }
+    void _tox_loop();
 };
 
 ToxModel& getToxModel();
