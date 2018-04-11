@@ -21,7 +21,6 @@ public:
 
 signals:
     void userNameChanged();
-    void userAuthenticated();
 
 private:
     QString m_userName;

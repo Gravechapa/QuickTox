@@ -43,9 +43,6 @@ Item {
         }
 
         controller.authenticate();
-        authenticated();
         mainLoader.source = "MainContainer.qml"
     }
-
-    signal authenticated
 }
