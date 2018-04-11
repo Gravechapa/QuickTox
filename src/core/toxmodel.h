@@ -57,9 +57,6 @@ private:
 
         static void self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data);
 
-        static void log_cb_helper(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
-                                  const char *message, void *user_data);
-
         static void registerModel(ToxModel *model);
 
         static void unregisterModel();

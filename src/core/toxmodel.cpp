@@ -57,12 +57,6 @@ void ToxModel::ToxCallbackHelper::self_connection_status_cb_helper(Tox *tox_c, T
 
 }
 
-void ToxModel::ToxCallbackHelper::log_cb_helper(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
-                          const char *message, void *user_data)
-{
-    qDebug() << level << file << line << func << message;
-}
-
 void ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
     const uint8_t* name = reinterpret_cast<const uint8_t*>(username.c_str());
