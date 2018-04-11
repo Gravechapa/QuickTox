@@ -1,6 +1,6 @@
-import QtQuick 2.0
+import QtQuick 2.7
 import QtQuick.Controls 2.2
-import QtQuick.Window 2.0
+import QtQuick.Window 2.2
 import QuickTox.MainController 1.0
 
 Item {
@@ -58,6 +58,11 @@ Item {
         anchors.top: textMsg.bottom
         anchors.topMargin: 67
         anchors.horizontalCenter: parent.horizontalCenter
+        Keys.onPressed: {
+            if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                send();
+            }
+        }
     }
 
     Button {
@@ -67,6 +72,12 @@ Item {
         anchors.topMargin: 25
         anchors.horizontalCenter: parent.horizontalCenter
 
-        onClicked: controller.sendMsg(sendText.text)
+        onClicked: {send()}
+    }
+
+    function send()
+    {
+        controller.sendMsg(sendText.text);
+        sendText.text = '';
     }
 }

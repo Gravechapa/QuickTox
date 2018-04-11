@@ -1,6 +1,6 @@
-import QtQuick 2.0
+import QtQuick 2.7
 import QtQuick.Controls 2.2
-import QtQuick.Window 2.0
+import QtQuick.Window 2.2
 import QtQuick.Layouts 1.3
 import QuickTox.LoginController 1.0
 
@@ -17,6 +17,11 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         placeholderText: qsTr("User name")
         onTextChanged: controller.userName = text
+        Keys.onPressed: {
+            if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                input();
+            }
+        }
     }
 
     Button {
@@ -25,19 +30,21 @@ Item {
         width: 180
         height: 50
         anchors.centerIn: parent
-        onClicked: {
-            if (controller.userName.length == 0) {
-                return;
-            }
-
-            controller.authenticate();
-            authenticated();
-            mainLoader.source = "MainContainer.qml"
-        }
+        onClicked: {input();}
     }
 
     LoginController {
         id: controller
+    }
+
+    function input() {
+        if (controller.userName.length == 0) {
+            return;
+        }
+
+        controller.authenticate();
+        authenticated();
+        mainLoader.source = "MainContainer.qml"
     }
 
     signal authenticated
