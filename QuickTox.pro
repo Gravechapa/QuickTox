@@ -1,4 +1,4 @@
-QT += quick
+QT += quick core
 CONFIG += c++14
 SOURCE_DIR = $$PWD/src
 
@@ -13,14 +13,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += $$SOURCE_DIR/main.cpp \
-           $$SOURCE_DIR/controllers/*.cpp \
-           $$SOURCE_DIR/core/*.cpp
+SOURCES +=  $$SOURCE_DIR/main.cpp \
+            $$SOURCE_DIR/controllers/*.cpp \
+            $$SOURCE_DIR/core/*.cpp
 
-HEADERS += $$SOURCE_DIR/controllers/*.h \
-           $$SOURCE_DIR/core/*.h
+HEADERS +=  $$SOURCE_DIR/controllers/*.h \
+            $$SOURCE_DIR/core/*.h \
+            $$SOURCE_DIR/configs/*.h
 
-RESOURCES += $$SOURCE_DIR/qml/qml.qrc
+RESOURCES += $$SOURCE_DIR/qml/qml.qrc \
+             $$PWD/resources/resources.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

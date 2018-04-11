@@ -23,29 +23,6 @@ ToxModel::~ToxModel()
     tox_kill(tox);
 }
 
-typedef struct DHT_node {
-    const char *ip;
-    uint16_t port;
-    const char key_hex[TOX_PUBLIC_KEY_SIZE*2 + 1]; // 1 for null terminator
-    unsigned char key_bin[TOX_PUBLIC_KEY_SIZE];
-} DHT_node;
-
-DHT_node nodes[] =
-{
-    {"178.62.250.138",             33445, "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B", {0}},
-    {"2a03:b0c0:2:d0::16:1",       33445, "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B", {0}},
-    {"163.172.136.118",            33445, "2C289F9F37C20D09DA83565588BF496FAB3764853FA38141817A72E3F18ACA0B", {0}},
-    {"2001:bc8:4400:2100::1c:50f", 33445, "2C289F9F37C20D09DA83565588BF496FAB3764853FA38141817A72E3F18ACA0B", {0}},
-    {"128.199.199.197",            33445, "B05C8869DBB4EDDD308F43C1A974A20A725A36EACCA123862FDE9945BF9D3E09", {0}},
-    {"2400:6180:0:d0::17a:a001",   33445, "B05C8869DBB4EDDD308F43C1A974A20A725A36EACCA123862FDE9945BF9D3E09", {0}},
-    {"node.tox.biribiri.org",      33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}},
-    {"tmux.ru",                    33445, "7467AFA626D3246343170B309BA5BDC975DF3924FC9D7A5917FBFA9F5CD5CD38", {0}},
-    {"t0x-node1.weba.ru",          33445, "5A59705F86B9FC0671FDF72ED9BB5E55015FF20B349985543DDD4B0656CA1C63", {0}},
-    {"d4rk4.ru",                   33445, "53737F6D47FA6BD2808F378E339AF45BF86F39B64E79D6D491C53A1D522E7039", {0}},
-    {"tox.uplinklabs.net ",        33445, "1A56EA3EDF5DF4C0AEABBF3C2E4E603890F87E983CAC8A0D532A335F2C6E3E1F", {0}},
-    {"tox.deadteam.org",           33445, "C7D284129E83877D63591F14B3F658D77FF9BA9BA7293AEB2BDFBFE1A803AF47", {0}}
-};
-
 void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
                                      size_t length, void *user_data)
 {
@@ -93,26 +70,32 @@ void ToxModel::authenticate(const std::string &username) //TODO: exception handl
         throw std::runtime_error("Cannot set status");
     }
 
-    for (auto i = 0; i < sizeof(nodes)/sizeof(DHT_node); i++)
+    auto nodes = get_dht_nodes();
+    for (auto i = 0; i < nodes.size(); i++)
     {
-        sodium_hex2bin(nodes[i].key_bin, sizeof(nodes[i].key_bin),
-                       nodes[i].key_hex, sizeof(nodes[i].key_hex)-1, NULL, NULL, NULL);
-        for (auto j = 0; j < 10 && !tox_bootstrap(tox, nodes[i].ip, nodes[i].port, nodes[i].key_bin, NULL); j++)
-        {
-            if (j == 9)
+        if(nodes[i].ip != "-")
             {
-                qDebug() << "Failed to connect to node: " << nodes[i].ip ;
+                if(!tox_bootstrap(tox, nodes[i].ip.c_str(), nodes[i].port, (uint8_t*)nodes[i].key_bin.c_str(), NULL))
+                    {
+                        qDebug() << "Failed to connect to node: " << nodes[i].ip.c_str();
+                    }
             }
-        }//TODO: handle false please
+        if(nodes[i].ipv6 != "-")
+            {
+                if(!tox_bootstrap(tox, nodes[i].ipv6.c_str(), nodes[i].port, (uint8_t*)nodes[i].key_bin.c_str(), NULL))
+                    {
+                        qDebug() << "Failed to connect to node: " << nodes[i].ipv6.c_str();
+                    }
+            }
     }
 
     uint8_t tox_id_bin[TOX_ADDRESS_SIZE];
     tox_self_get_address(tox, tox_id_bin);
 
-    char tox_id_hex[TOX_ADDRESS_SIZE*2 + 1];
+    char tox_id_hex[TOX_ADDRESS_SIZE * 2 + 1];
     sodium_bin2hex(tox_id_hex, sizeof(tox_id_hex), tox_id_bin, sizeof(tox_id_bin));
 
-    for (size_t i = 0; i < sizeof(tox_id_hex)-1; i ++) {
+    for (size_t i = 0; i < sizeof(tox_id_hex) - 1; i ++) {
         tox_id_hex[i] = toupper(tox_id_hex[i]);
     }
 

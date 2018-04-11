@@ -9,9 +9,9 @@
 #include <thread>
 #include <mutex>
 #include <stdexcept>
-#include <sodium.h>
 #include <cstring>
 #include <QDebug>
+#include "../configs/NodesParser.h"
 
 class ToxModel
 {
