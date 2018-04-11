@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <QDebug>
+#include <sodium.h>
 #include "../configs/NodesParser.h"
 
 class ToxModel
