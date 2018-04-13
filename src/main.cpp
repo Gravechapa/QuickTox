@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<MainController>("QuickTox.MainController", 1, 0, "MainController");
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    engine.load(":/qml/main.qml");
     if (engine.rootObjects().isEmpty())
         return -1;
 
