@@ -22,6 +22,7 @@ signals:
     void messageReceived(QString id);
     void statusChanged(QString status);
     void useridChanged();
+    void friendAdded(QString name);
 
 public slots:
 };

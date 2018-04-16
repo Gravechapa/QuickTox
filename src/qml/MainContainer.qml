@@ -80,4 +80,27 @@ Item {
         controller.sendMsg(sendText.text);
         sendText.text = '';
     }
+
+    ListModel {
+        id: friendList
+    }
+
+    ListView {
+        width: 100
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 480
+        anchors.top: parent.top
+        anchors.topMargin: 0
+        model: friendList
+        delegate: Text {
+            text: friendName
+        }
+    }
+
+    Connections {
+        target: controller
+        onFriendAdded: {
+            friendList.append({"friendName": name})
+        }
+    }
 }
