@@ -179,9 +179,8 @@ void ToxModel::ToxCallbackHelper::unregisterModel()
     _toxModel = nullptr;
 }
 
-ToxModel TOX_MODEL;
-
 ToxModel& getToxModel()
 {
-    return TOX_MODEL;
+    static ToxModel tox;
+    return tox;
 }

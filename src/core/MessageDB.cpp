@@ -14,9 +14,8 @@ bool MessageDB::openDB(QString name, QString password)
     return _db.open();
 }
 
-MessageDB MESSAGE_DB;
-
 MessageDB& getMessageDB()
 {
-    return MESSAGE_DB;
+    static MessageDB db;
+    return db;
 }
