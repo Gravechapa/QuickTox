@@ -1,4 +1,4 @@
-QT += quick core
+QT += quick core sql
 CONFIG += c++14
 SOURCE_DIR = $$PWD/src
 
