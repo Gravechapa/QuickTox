@@ -7,7 +7,7 @@ MessageDB::MessageDB()
 bool MessageDB::openDB(QString name, QString password)
 {
     _db = QSqlDatabase::addDatabase("QSQLITE");
-    _db.setDatabaseName(QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    _db.setDatabaseName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
                         "/" + name + ".db");
     _db.setUserName(name);
     _db.setPassword(password);

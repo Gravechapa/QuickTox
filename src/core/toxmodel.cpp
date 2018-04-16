@@ -1,5 +1,5 @@
 #include "toxmodel.h"
-
+#include "MessageDB.h"
 ToxModel::ToxModel()
 {
     TOX_ERR_NEW err_new;
@@ -59,6 +59,7 @@ void ToxModel::ToxCallbackHelper::self_connection_status_cb_helper(Tox *tox_c, T
 
 void ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
+    auto res = getMessageDB().openDB("test", "test");
     const uint8_t* name = reinterpret_cast<const uint8_t*>(username.c_str());
     if(!tox_self_set_name(_tox, name, std::strlen(username.c_str()), NULL))
     {

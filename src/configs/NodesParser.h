@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QString>
 #include <QFile>
+#include <QStandardPaths>
 #include <string>
 #include <vector>
 #include <tox/tox.h>
@@ -23,7 +24,7 @@ static std::vector<DHT_node> get_dht_nodes()
 {
     QString data;
     QFile file;
-    file.setFileName(":/configs/nodes.json");
+    file.setFileName(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/nodes.json");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     data = file.readAll();
     file.close();
