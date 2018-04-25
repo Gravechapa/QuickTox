@@ -164,7 +164,8 @@ void ToxModel::set_self_connection_status_callback(std::function<void(std::strin
 void ToxModel::send_message(std::string &msg)
 { //TODO: error handling
     auto id = tox_friend_send_message(_tox, _lastReceived, TOX_MESSAGE_TYPE_NORMAL, reinterpret_cast<const uint8_t*>(msg.c_str()), msg.size(), NULL);
-    getMessageDB().addMsg(Message(_lastReceived, TOX_MESSAGE_TYPE_NORMAL, msg, id));
+    auto message = Message(_lastReceived, TOX_MESSAGE_TYPE_NORMAL, msg, id);
+    getMessageDB().addMsg(message);
 }
 
 std::string &ToxModel::getUserId()
