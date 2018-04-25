@@ -15,13 +15,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES +=  $$SOURCE_DIR/main.cpp \
             $$SOURCE_DIR/controllers/*.cpp \
-            $$SOURCE_DIR/core/*.cpp \
-    src/core/Message.cpp
+            $$SOURCE_DIR/core/*.cpp
 
 HEADERS +=  $$SOURCE_DIR/controllers/*.h \
             $$SOURCE_DIR/core/*.h \
-            $$SOURCE_DIR/configs/*.h \
-    src/core/Message.h
+            $$SOURCE_DIR/configs/*.h
 
 RESOURCES += $$SOURCE_DIR/qml/qml.qrc \
              $$PWD/resources/resources.qrc
