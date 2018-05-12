@@ -1,5 +1,7 @@
 #include "toxmodel.h"
 #include "MessageDB.h"
+#include "Message.h"
+
 ToxModel::ToxModel()
 {
     TOX_ERR_NEW err_new;
@@ -26,6 +28,8 @@ ToxModel::~ToxModel()
 void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
                                      size_t length, void *user_data)
 {
+    Message msg(friend_number, type, reinterpret_cast<const char*>(message), 0); //TODO: use Message class, Luke
+    getMessageDB().addMsg(msg);
     qDebug() << "Mesage received";
     _toxModel->_lastReceived = friend_number;
     const char *str = reinterpret_cast<const char*>(message);
@@ -158,8 +162,10 @@ void ToxModel::set_self_connection_status_callback(std::function<void(std::strin
 }
 
 void ToxModel::send_message(std::string &msg)
-{
-    tox_friend_send_message(_tox, _lastReceived, TOX_MESSAGE_TYPE_NORMAL, reinterpret_cast<const uint8_t*>(msg.c_str()), msg.size(), NULL);
+{ //TODO: error handling
+    auto id = tox_friend_send_message(_tox, _lastReceived, TOX_MESSAGE_TYPE_NORMAL, reinterpret_cast<const uint8_t*>(msg.c_str()), msg.size(), NULL);
+    auto message = Message(_lastReceived, TOX_MESSAGE_TYPE_NORMAL, msg, id);
+    getMessageDB().addMsg(message);
 }
 
 std::string &ToxModel::getUserId()
@@ -179,9 +185,8 @@ void ToxModel::ToxCallbackHelper::unregisterModel()
     _toxModel = nullptr;
 }
 
-ToxModel TOX_MODEL;
-
 ToxModel& getToxModel()
 {
-    return TOX_MODEL;
+    static ToxModel tox;
+    return tox;
 }
