@@ -7,7 +7,6 @@ MainController::MainController(QObject *parent) : QObject(parent)
     {
         auto str = QString::fromUtf8(msg.c_str());
         emit this->messageReceived(str);
-        emit this->friendAdded(str);
     });
 
     getToxModel().set_self_connection_status_callback([this](std::string status)
@@ -34,4 +33,12 @@ void MainController::sendMsg(QString msg)
 {
     auto str = msg.toStdString();
     getToxModel().send_message(str);
+}
+
+QStringList MainController::friends()
+{
+    QStringList friendsL;
+    friendsL.append("Hello world!");
+    friendsL.append("Nice to meet you!");
+    return friendsL;
 }

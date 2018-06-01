@@ -81,26 +81,17 @@ Item {
         sendText.text = '';
     }
 
-    ListModel {
-        id: friendList
-    }
-
     ListView {
-        width: 100
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 480
         anchors.top: parent.top
-        anchors.topMargin: 0
-        model: friendList
-        delegate: Text {
-            text: friendName
-        }
-    }
-
-    Connections {
-        target: controller
-        onFriendAdded: {
-            friendList.append({"friendName": name})
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.right: sendText
+        anchors.rightMargin: 5
+        model: controller.friends
+        delegate: Rectangle {
+            height: 25
+            width: parent.width
+            Text { text: modelData }
         }
     }
 }
