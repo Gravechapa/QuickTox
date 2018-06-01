@@ -2,12 +2,12 @@
 
 LoginController::LoginController(QObject *parent) : QObject(parent)
 {
-    qDebug() << "Constructor called";
+    qDebug() << "LoginController: Constructor called";
 }
 
 LoginController::~LoginController()
 {
-    qDebug() << "Destructor called";
+    qDebug() << "LoginController: Destructor called";
 }
 
 QString LoginController::userName()

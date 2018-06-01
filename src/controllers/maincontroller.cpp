@@ -14,14 +14,14 @@ MainController::MainController(QObject *parent) : QObject(parent)
         auto str = QString::fromUtf8(status.c_str());
         emit this->statusChanged(str);
     });
-    qDebug() << "Constructor called";
+    qDebug() << "MainController: Constructor called";
 }
 
 MainController::~MainController()
 {
     getToxModel().set_receive_message_callback([](uint32_t id , TOX_MESSAGE_TYPE type, std::string msg, void *userData) {});
     getToxModel().set_self_connection_status_callback([](std::string status){});
-    qDebug() << "Destructor called";
+    qDebug() << "MainController: Destructor called";
 }
 
 QString MainController::userid()
