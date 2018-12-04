@@ -34,12 +34,14 @@ public:
 private:
     Tox *_tox;
 
+    QString _username;
+
     uint8_t _self_connection_status = TOX_CONNECTION_NONE;
 
     std::function<void(uint32_t, TOX_MESSAGE_TYPE, std::string, void *)> _receive_message_callback;
     std::function<void(std::string)> _self_connection_status_callback;
 
-    std::atomic_bool _finalize;
+    std::atomic_bool _finalize{false};
 
     std::string _userid;
 
@@ -54,6 +56,8 @@ private:
                                              size_t length, void *user_data);
 
         static void friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data);
+
+        static void friend_name_cb_helper(Tox *tox_c, uint32_t friend_number, const uint8_t *name, size_t length, void *user_data);
 
         static void self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data);
 

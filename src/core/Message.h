@@ -9,9 +9,9 @@ private:
     uint32_t _friend_number;
     TOX_MESSAGE_TYPE _type;
     std::string _msg;
-    uint32_t _msg_id;
+    uint32_t _chat_id;
 public:
-    Message(uint32_t friend_number_, TOX_MESSAGE_TYPE type_, std::string msg_, uint32_t msg_id_);
+    Message(uint32_t friend_number_, TOX_MESSAGE_TYPE type_, std::string msg_, uint32_t chat_id_);
 
     uint32_t friend_number() const;
 
@@ -19,7 +19,7 @@ public:
 
     std::string msg() const;
 
-    uint32_t msg_id() const;
+    uint32_t chat_id() const;
 };
 
 #endif // MESSAGE_H
