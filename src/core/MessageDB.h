@@ -11,6 +11,8 @@ public:
     bool openDB(QString name, QString password);
 
     void addMsg(Message &message);
+    void addFriend(uint32_t id, QString public_key);
+    void setFriendName(uint32_t id, QString name);
 
 private:
 

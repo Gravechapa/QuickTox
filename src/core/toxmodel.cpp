@@ -4,23 +4,28 @@
 
 ToxModel::ToxModel()
 {
-    TOX_ERR_NEW err_new;
-    _tox = tox_new(NULL, &err_new);
-    if (err_new != TOX_ERR_NEW_OK)
-    {
-        throw std::runtime_error("Toxcore");
-    }
-    _finalize = false;
-
     ToxCallbackHelper::registerModel(this);
 }
 
 ToxModel::~ToxModel()
 {
-    _finalize = true;
+    _finalize.store(true);
     if(_tox_main_loop.joinable())
         {
             _tox_main_loop.join();
+        }
+    std::vector<uint8_t> savedata(tox_get_savedata_size(_tox));
+    tox_get_savedata(_tox, savedata.data());
+
+    QFile savedata_file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+                        "/" + _username + ".tox");
+    if(!savedata_file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        {
+            qWarning() << "Can't save tox data!";
+        }
+    else
+        {
+            savedata_file.write(reinterpret_cast<char*>(savedata.data()), savedata.size());
         }
     tox_kill(_tox);
 }
@@ -28,7 +33,7 @@ ToxModel::~ToxModel()
 void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
                                      size_t length, void *user_data)
 {
-    Message msg(friend_number, type, reinterpret_cast<const char*>(message), 0); //TODO: use Message class, Luke
+    Message msg(friend_number, type, reinterpret_cast<const char*>(message), friend_number); //TODO: use Message class, Luke
     getMessageDB().addMsg(msg);
     qDebug() << "Mesage received";
     _toxModel->_lastReceived = friend_number;
@@ -36,10 +41,28 @@ void ToxModel::ToxCallbackHelper::friend_message_cb_helper(Tox *tox_c, uint32_t 
     _toxModel->_receive_message_callback(friend_number, type, str, user_data);
 }
 
-void ToxModel::ToxCallbackHelper::friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message, size_t length, void *user_data)
+void ToxModel::ToxCallbackHelper::friend_request_cb_helper(Tox *tox_c, const uint8_t *public_key, const uint8_t *message,
+                                                           size_t length, void *user_data)
 {
     qDebug() << "Request received";
-    tox_friend_add_norequest(tox_c, public_key, NULL);
+    uint32_t friend_id = tox_friend_add_norequest(tox_c, public_key, NULL);
+    if (friend_id == UINT32_MAX)
+        {
+            return;
+        }
+    char hex_public_key[TOX_PUBLIC_KEY_SIZE * 2 + 1];
+    sodium_bin2hex(hex_public_key, sizeof(hex_public_key), public_key, TOX_PUBLIC_KEY_SIZE);
+    for (size_t i = 0; i < sizeof(hex_public_key) - 1; ++i)
+        {
+            hex_public_key[i] = toupper(hex_public_key[i]);
+        }
+    getMessageDB().addFriend(friend_id, QString(hex_public_key));
+}
+
+void ToxModel::ToxCallbackHelper::friend_name_cb_helper(Tox *tox_c, uint32_t friend_number, const uint8_t *name, size_t length, void *user_data)
+{
+    qDebug() << "Friend name updated";
+    getMessageDB().setFriendName(friend_number, std::string(reinterpret_cast<const char*>(name), length).c_str());
 }
 
 void ToxModel::ToxCallbackHelper::self_connection_status_cb_helper(Tox *tox_c, TOX_CONNECTION connection_status, void *user_data)
@@ -63,7 +86,39 @@ void ToxModel::ToxCallbackHelper::self_connection_status_cb_helper(Tox *tox_c, T
 
 void ToxModel::authenticate(const std::string &username) //TODO: exception handling
 {
-    auto res = getMessageDB().openDB("test", "test");
+    _username = QString::fromStdString(username);
+    Tox_Options *options = tox_options_new(NULL);
+    if (!options)
+        {
+            throw std::runtime_error("Can't initialize tox options");
+        }
+
+    std::vector<uint8_t> savedata;
+    QFile savedata_file(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+                        "/" + _username + ".tox");
+    if (savedata_file.exists())
+        {
+            if(!savedata_file.open(QIODevice::ReadOnly))
+                {
+                    std::runtime_error("Can't open tox options");
+                }
+            savedata.resize(savedata_file.size());
+            savedata_file.read(reinterpret_cast<char*>(savedata.data()), savedata_file.size());
+            tox_options_set_savedata_type(options, TOX_SAVEDATA_TYPE_TOX_SAVE);
+            tox_options_set_savedata_data(options, savedata.data(), savedata.size());
+        }
+
+    TOX_ERR_NEW err_new;
+    _tox = tox_new(options, &err_new);
+    if (err_new != TOX_ERR_NEW_OK)
+    {
+        throw std::runtime_error("Can't initialize tox");
+    }
+
+    tox_options_free(options);
+
+    auto res = getMessageDB().openDB(_username, "");
+
     const uint8_t* name = reinterpret_cast<const uint8_t*>(username.c_str());
     if(!tox_self_set_name(_tox, name, std::strlen(username.c_str()), NULL))
     {
@@ -90,6 +145,7 @@ void ToxModel::authenticate(const std::string &username) //TODO: exception handl
 
     tox_callback_friend_request(_tox, ToxCallbackHelper::friend_request_cb_helper);
     tox_callback_friend_message(_tox, ToxCallbackHelper::friend_message_cb_helper);
+    tox_callback_friend_name(_tox, ToxCallbackHelper::friend_name_cb_helper);
     tox_callback_self_connection_status(_tox, ToxCallbackHelper::self_connection_status_cb_helper);
 
     _tox_main_loop = std::thread(&ToxModel::_tox_loop, this);
@@ -137,7 +193,7 @@ void ToxModel::bootstrap()
 
 void ToxModel::_tox_loop()
 {
-    while(!_finalize)
+    while(!_finalize.load())
     {
         if(_self_connection_status == TOX_CONNECTION_NONE)
             {
@@ -164,7 +220,7 @@ void ToxModel::set_self_connection_status_callback(std::function<void(std::strin
 void ToxModel::send_message(std::string &msg)
 { //TODO: error handling
     auto id = tox_friend_send_message(_tox, _lastReceived, TOX_MESSAGE_TYPE_NORMAL, reinterpret_cast<const uint8_t*>(msg.c_str()), msg.size(), NULL);
-    auto message = Message(_lastReceived, TOX_MESSAGE_TYPE_NORMAL, msg, id);
+    auto message = Message(UINT32_MAX, TOX_MESSAGE_TYPE_NORMAL, msg, _lastReceived);
     getMessageDB().addMsg(message);
 }
 
